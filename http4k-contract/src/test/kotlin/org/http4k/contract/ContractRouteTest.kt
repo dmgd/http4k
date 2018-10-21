@@ -112,7 +112,7 @@ class ContractRouteTest {
 
         val handler: HttpHandler = { Response(OK) }
 
-        assertRequest("/" bindContract GET to handler, "http://foo.com")
+        assertRequest("/" bindContract GET to handler, "http://foo.com/")
         assertRequest(Path.of("value") bindContract GET to { _ -> handler }, "http://foo.com/{value}")
         assertRequest(Path.of("value") / Path.of("value2") bindContract GET to { _, _ -> handler }, "http://foo.com/{value}/{value2}")
         assertRequest(Path.of("value") / Path.of("value2") / Path.of("value3") bindContract GET to { _, _, _ -> handler }, "http://foo.com/{value}/{value2}/{value3}")
