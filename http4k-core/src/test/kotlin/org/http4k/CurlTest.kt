@@ -13,25 +13,25 @@ class CurlTest {
     @Test
     fun `generates for simple get request`() {
         val curl = Request(Method.GET, "http://httpbin.org").toCurl()
-        assertThat(curl, equalTo("curl -X GET \"http://httpbin.org\""))
+        assertThat(curl, equalTo("curl -X GET \"http://httpbin.org/\""))
     }
 
     @Test
     fun `generates for request with query`() {
         val curl = Request(Method.GET, "http://httpbin.org").query("a", "one two three").toCurl()
-        assertThat(curl, equalTo("""curl -X GET "http://httpbin.org?a=one+two+three""""))
+        assertThat(curl, equalTo("""curl -X GET "http://httpbin.org/?a=one+two+three""""))
     }
 
     @Test
     fun `includes headers`() {
         val curl = Request(Method.GET, "http://httpbin.org").header("foo", "my header").toCurl()
-        assertThat(curl, equalTo("""curl -X GET -H "foo:my header" "http://httpbin.org""""))
+        assertThat(curl, equalTo("""curl -X GET -H "foo:my header" "http://httpbin.org/""""))
     }
 
     @Test
     fun `deals with headers with quotes`(){
         val curl = Request(Method.GET, "http://httpbin.org").header("foo", "my \"quoted\" header").toCurl()
-        assertThat(curl, equalTo("""curl -X GET -H "foo:my \"quoted\" header" "http://httpbin.org""""))
+        assertThat(curl, equalTo("""curl -X GET -H "foo:my \"quoted\" header" "http://httpbin.org/""""))
     }
 
     @Test
@@ -43,20 +43,20 @@ class CurlTest {
     @Test
     fun `escapes body form`() {
         val curl = Request(Method.GET, "http://httpbin.org").body(listOf("foo" to "bar \"quoted\"").toBody()).toCurl()
-        assertThat(curl, equalTo("""curl -X GET --data "foo=bar+%22quoted%22" "http://httpbin.org""""))
+        assertThat(curl, equalTo("""curl -X GET --data "foo=bar+%22quoted%22" "http://httpbin.org/""""))
     }
 
     @Test
     fun `escapes body string`() {
         val curl = Request(Method.GET, "http://httpbin.org").body("my \"quote\"").toCurl()
-        assertThat(curl, equalTo("""curl -X GET --data "my \"quote\"" "http://httpbin.org""""))
+        assertThat(curl, equalTo("""curl -X GET --data "my \"quote\"" "http://httpbin.org/""""))
     }
 
     @Test
     fun `does not realise stream body`() {
         val request = Request(Method.POST, "http://httpbin.org").body("any stream".byteInputStream())
         val curl = request.toCurl()
-        assertThat(curl, equalTo("""curl -X POST --data "<<stream>>" "http://httpbin.org""""))
+        assertThat(curl, equalTo("""curl -X POST --data "<<stream>>" "http://httpbin.org/""""))
         assertThat(String(request.body.stream.readBytes()), equalTo("any stream"))
     }
 
