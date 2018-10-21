@@ -21,6 +21,12 @@ class UriTest {
     }
 
     @Test
+    fun `equality for round tripping`() {
+        val before = Uri.of("path")
+        assertThat(before, equalTo(Uri.of(before.toString())))
+    }
+
+    @Test
     fun `creating a full uri by hand`() {
         val uri = Uri.of("")
             .scheme("https")
@@ -55,19 +61,19 @@ class UriTest {
         assertThat(uri.userInfo, equalTo(""))
         assertNull(uri.port)
         assertThat(uri.fragment, equalTo(""))
-        assertThat(uri.path, equalTo(""))
+        assertThat(uri.path, equalTo("/"))
         assertThat(uri.query, equalTo(""))
-        assertThat(uri.toString(), equalTo(value))
+        assertThat(uri.toString(), equalTo("$value/"))
     }
 
     @Test
     fun handles_empty_uri() {
-        assertThat(Uri.of("").toString(), equalTo(""))
+        assertThat(Uri.of("").toString(), equalTo("/"))
     }
 
     @Test
     fun can_add_parameter() {
-        assertThat(Uri.of(value = "http://ignore").query("a", "b").toString(), equalTo("http://ignore?a=b"))
+        assertThat(Uri.of(value = "http://ignore").query("a", "b").toString(), equalTo("http://ignore/?a=b"))
     }
 
     @Test

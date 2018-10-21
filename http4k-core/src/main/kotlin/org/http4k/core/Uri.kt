@@ -13,7 +13,7 @@ data class Uri(val scheme: String, val userInfo: String, val host: String, val p
             val result = RFC3986.matchEntire(value) ?: throw RuntimeException("Invalid Uri: $value")
             val (scheme, authority, path, query, fragment) = result.destructured
             val (userInfo, host, port) = parseAuthority(authority)
-            return Uri(scheme, userInfo, host, port, path, query, fragment)
+            return Uri(scheme, userInfo, host, port, if(path.startsWith("/")) path else "/$path", query, fragment)
         }
 
         private fun parseAuthority(authority: String): Triple<String, String, Int?> = when {
@@ -63,5 +63,5 @@ fun Uri.extend(uri: Uri): Uri =
     appendToPath(uri.path).copy(query = (query.toParameters() + uri.query.toParameters()).toUrlFormEncoded())
 
 private fun Uri.appendToPath(path: String): Uri =
-    if (path == "") this
+    if (path.removePrefix("/") == "") this
     else copy(path = (this.path.removeSuffix("/") + "/" + path.removePrefix("/")))
