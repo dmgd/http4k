@@ -252,14 +252,21 @@ fun <NEXT, IN : Any, OUT> BiDiLensSpec<IN, OUT>.map(mapping: BiDiMapping<OUT, NE
 /**
  * This allows creation of a composite object from several values from the same source.
  */
-inline fun <TARGET : Any, reified T> BiDiLensSpec<TARGET, String>.composite(crossinline fn: BiDiLensSpec<TARGET, String>.(TARGET) -> T) = LensSpec<TARGET, T>(
-    T::class.java.name, ParamMeta.ObjectParam, LensGet { _, target -> listOf(fn(target)) }).required(T::class.java.name)
+inline fun <TARGET : Any, reified T> BiDiLensSpec<TARGET, String>.composite(crossinline fn: BiDiLensSpec<TARGET, String>.(TARGET) -> T) = compose(fn).required(T::class.java.name)
 
 inline fun <TARGET : Any, reified T> BiDiLensSpec<TARGET, String>.composite(
+    crossinline getFn: BiDiLensSpec<TARGET, String>.(TARGET) -> T,
+    crossinline setFn: T.(TARGET) -> TARGET
+) = compose(getFn, setFn).required(T::class.java.name)
+
+
+inline fun <TARGET : Any, reified T> BiDiLensSpec<TARGET, String>.compose(crossinline fn: BiDiLensSpec<TARGET, String>.(TARGET) -> T) = LensSpec<TARGET, T>(
+    T::class.java.name, ParamMeta.ObjectParam, LensGet { _, target -> listOf(fn(target)) })
+
+inline fun <TARGET : Any, reified T> BiDiLensSpec<TARGET, String>.compose(
     crossinline getFn: BiDiLensSpec<TARGET, String>.(TARGET) -> T,
     crossinline setFn: T.(TARGET) -> TARGET
 ) = BiDiLensSpec(
     T::class.java.name, ParamMeta.ObjectParam,
     LensGet { _, target -> listOf(getFn(target)) },
     LensSet<TARGET, T> { _, values, target -> values.fold(target) { msg, next: T -> next.setFn(msg) } })
-    .required(T::class.java.name)
